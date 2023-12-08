@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    #canvas {
+        margin-left: 200px;
+        margin-top: 50px;
+        background-color: #fff;
+        border: 1px solid red;
+    }
+</style>
+
+<body>
+    <canvas id="canvas" width="800" height="800"></canvas>
+</body>
+<script>
+    class LineChart {
+        constructor(domId, options) {
+            this.canvas = document.getElementById(domId)
+            this.ctx = this.canvas.getContext('2d')
+            this.margin = {
+                top: options.marginTop || 50,
+                right: options.marginRight || 100,
+                bottom: options.marginBottom || 50,
+                left: options.marginLeft || 100,
+            }
+            this.width = this.canvas.width - this.margin.left - this.margin.right
+            this.height = this.canvas.height - this.margin.top - this.margin.bottom
+            this.xAxisGap = options.xAxisGap || (Math.ceil((this.width) / options.data.length / 10) * 9)
+            this.yAxisGap = options.yAxisGap || (Math.ceil((this.height) / options.data.length / 10) * 9)
+            this.data = options.data || []
+            this.lineColor = options.lineColor || '#2ff'
+            this.lineWidth = options.lineWidth || 2
+            this.pointColor = options.pointColor || 'red'
+            this.pointSize = options.pointSize || 4
+            this.fontSize = options.fontSize || '12px'
+            this.tickLineLength = 10
+        }
+        draw() {
+            // 绘制坐标系
+            this.ctx.translate(this.margin.left, this.margin.top);
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, 0);
+            this.ctx.lineTo(0, this.height);
+            this.ctx.lineTo(this.width, this.height);
+            this.ctx.stroke();
+            this.drawTicks()
+            this.drawDataPoints()
+            this.drawDataLine()
+            this.drawXArrow()
+            this.drawYArrow()
+            this.drawXText()
+        }
+        drawTicks() {
+            // 根据横坐标刻度线坐标
+            let xPoints = this.data.map((d, index) => (index + 1) * this.xAxisGap)
+            // 根据纵坐标刻度线坐标
+            // let yPoints = this.data.map((d, index) => index * this.yAxisGap)
+            xPoints.forEach(p => {
+                this.ctx.beginPath();
+                this.ctx.moveTo(p, this.height);
+                this.ctx.lineTo(p, this.height + this.tickLineLength);
+                this.ctx.stroke();
+            }); 
+        }
+        drawDataPoints() {
+            let coords = this.data.map((d, index) => [(index + 1) * this.xAxisGap, this.height - d.y])
+            this.ctx.fillStyle = '#47B78F'
+            this.ctx.strokeStyle = '#F66804'
+            coords.forEach((p, index) => {
+                this.ctx.beginPath();
+                this.ctx.arc(p[0], p[1], 5, 0, 2 * Math.PI);
+                this.ctx.stroke();
+                this.ctx.fill()
+            });
+        }
+        drawDataLine() {
+            let coords = this.data.map((d, index) => [(index + 1) * this.xAxisGap, this.height - d.y])
+            console.log(coords);
+            coords.forEach((p, index) => {
+                this.ctx.strokeStyle = '#F66804'
+                this.ctx.beginPath();
+                this.ctx.moveTo(p[0], p[1]);
+                index === coords.length - 1 ? '' : this.ctx.lineTo(coords[index + 1][0], coords[index + 1][1]);
+                this.ctx.stroke();
+            });
+        }
+        drawXArrow() {
+            this.ctx.beginPath()
+            this.ctx.moveTo(this.width,this.height)
+            this.ctx.lineTo(this.width-5,this.height-10)
+            this.ctx.lineTo(this.width+10,this.height)
+            this.ctx.lineTo(this.width-5,this.height+10)
+            this.ctx.closePath()
+            this.ctx.fillStyle = '#000'
+            this.ctx.fill()
+        }
+        drawYArrow() {
+            this.ctx.beginPath()
+            this.ctx.moveTo(0,0)
+            this.ctx.lineTo(-5,10)
+            this.ctx.lineTo(0,10)
+            this.ctx.lineTo(5,10)
+            this.ctx.closePath()
+            this.ctx.fillStyle = '#000'
+            this.ctx.fill()
+        }
+        drawXText() {
+            this.ctx.font = '14px Arial'
+            this.ctx.fillStyle = '#000'
+             // 根据横坐标刻度线坐标
+             let xPoints = this.data.map((d, index) => (index + 1) * this.xAxisGap)
+            this.data.forEach((item,index) => {
+                this.ctx.fillText(item.x,xPoints[index]-(item.x.length*14/2),this.height+30)
+            })
+        }
+    }
+    const lineChart = new LineChart('canvas', {
+        data: [{
+            x: '周一',
+            y: 90
+        }, {
+            x: '周二',
+            y: 20
+        }, {
+            x: '周三',
+            y: 60
+        }, {
+            x: '周四',
+            y: 75
+        }, {
+            x: '周五',
+            y: 190
+        }]
+    })
+    console.log(lineChart);
+    lineChart.draw()
+</script>
+
+</html>
