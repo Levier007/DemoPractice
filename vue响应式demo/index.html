@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vue的响应式</title>
+    <link rel="stylesheet" href="./index.css" />
+</head>
+
+<body>
+    <div class="card">
+        <p id="firstName"></p>
+        <p id="lastName"></p>
+        <p id="age"></p>
+    </div>
+    姓：<input type="text" oninput="user.name.firstName = this.value" /><br>
+    名：<input type="text" oninput="user.name.lastName = this.value" /><br>
+    <input type="date" onchange="user.birth = this.value" />
+</body>
+<script src="./vue_demo.js"></script>
+<script src="./index.js"></script>
+
+</html>
