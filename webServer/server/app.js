@@ -36,7 +36,7 @@ const serverHandler = async (req, res) => {
   req.query = queryString.parse(url.split('?')[1])
   let postData = await getPostData(req, res)
   req.body = postData
-  const blogData = handleBlogRoute(req, res)
+  const blogData = await handleBlogRoute(req, res)
   if (blogData) {
     res.end(JSON.stringify(blogData))
     return

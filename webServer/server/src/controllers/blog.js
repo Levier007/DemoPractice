@@ -1,37 +1,46 @@
-const getList = (author, keyword) => {
-  return [
-    {
-      id: 1,
-      title: '标题1',
-      content: '内容1',
-      author: 'lwt',
-      createdAt: 1700213412896
-    },
-    {
-      id: 2,
-      title: '标题2',
-      content: '内容2',
-      author: 'lwt',
-      createdAt: 1700215412896
-    }
-  ]
-}
+const { executeSQL } = require('../db/mysql')
 
-const getDetail = id => {
-  return {
-    id,
-    title: '标题1',
-    content: '内容1',
-    author: 'lwt',
-    createdAt: 1700213412896
+const getList = async (author, keyword) => {
+  let sql = `select * from blogs where`
+  if (author) {
+    sql += ` author='${author}'`
   }
+  if (keyword) {
+    sql += ` and title like '%${keyword}%'`
+  }
+  const data = await executeSQL(sql)
+  return data
 }
 
-const createNewBlog = (blogData = {}) => {}
-const updateBlog = (id, blogData = {}) => {}
-const deleteBlog = id => {}
+const getDetail = async id => {
+  let sql = `select * from blogs where id='${id}'`
+  const data = await executeSQL(sql)
+  return data
+}
+
+const createNewBlog = async (blogData = {}) => {
+  let sql = `insert into blogs (title, content, author, createdAt) values ('${blogData.title}', '${blogData.content}', '${
+    blogData.author
+  }', ${Date.now()})`
+  const data = await executeSQL(sql)
+  return data
+}
+const updateBlog = async (id, blogData = {}) => {
+  let sql = `UPDATE blogs SET title='${blogData.title}',content='${blogData.content}',author='${
+    blogData.author
+  }',createdAt=${Date.now()} WHERE id='${id}'`
+  const data = await executeSQL(sql)
+  return data
+}
+const deleteBlog = async id => {
+  let sql = `delete from blogs where id='${id}'`
+  const data = await executeSQL(sql)
+  return data
+}
 module.exports = {
   getList,
   getDetail,
-  createNewBlog
+  createNewBlog,
+  updateBlog,
+  deleteBlog
 }
