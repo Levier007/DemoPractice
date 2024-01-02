@@ -1,7 +1,7 @@
 let MYSQL_CONFIG = {}
 
 MYSQL_CONFIG = {
-  host: 'localhost',
+  host: '10.100.24.5',
   user: 'root',
   password: 'lee5672020',
   port: 3306,
