@@ -1,3 +1,10 @@
 .App {
   text-align: center;
 }
+.route-item{
+  width: 50px;
+  height: 30px;
+  margin-right: 8px;
+  line-height: 30px;
+  border: 1px solid #fdfdfd;
+}
