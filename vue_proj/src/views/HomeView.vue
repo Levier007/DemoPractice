@@ -7,7 +7,7 @@
 </script>
 
 <template>
-  <button @click="getBlogData">发送请求</button>
+  <button @click="getBlogData">发送请求(docker)</button>
 </template>
 
 <style scoped></style>
