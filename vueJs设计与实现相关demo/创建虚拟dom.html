@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+  <script>
+    class Vnode {
+      constructor(tag, props, children) {
+        this.tag = tag
+        this.props = props
+        this.children = children
+      }
+    }
+    const h = (tag, props, children) => {
+      return new Vnode(tag, props, children)
+    }
+    const el = document.getElementById('app')
+    // 组件可理解为返回虚拟dom的函数
+    const myComponent = () => {
+      return h('ul', {}, [
+        h('li', {}, '1'),
+        h('li', {}, '2'),
+        h('li', {}, '3'),
+        h('li', {}, '4'),
+        h('li', {}, '5')
+      ])
+    }
+    const vNodes = h(
+      'div',
+      {
+        class: 'header',
+        onclick: () => {
+          alert('div clicked')
+        }
+      },
+      [
+        h('h1', { class: 'title' }, 'hello world'),
+        h('div', { class: 'menu' }, [h('span', {}, '12345')]),
+        h(myComponent, {}, '')
+      ]
+    )
+    const mountElement = (vnode, rootEl) => {
+      const { tag, props, children } = vnode
+      const el = document.createElement(tag)
+      for (const key in props) {
+        if (key.startsWith('on')) {
+          el.addEventListener(key.slice(2), props[key])
+        } else {
+          el.setAttribute(key, props[key])
+        }
+      }
+      if (typeof children === 'string') {
+        el.appendChild(document.createTextNode(children))
+      } else if (children instanceof Array) {
+        children.forEach(child => {
+          render(child, el)
+        })
+      }
+      rootEl.appendChild(el)
+    }
+    const mountComponent = (vnode, rootEl) => {
+      render(vnode, rootEl)
+    }
+    const render = (vnode, rootEl) => {
+      const { tag } = vnode
+      if (typeof tag === 'string') {
+        mountElement(vnode, rootEl)
+      }
+      if (typeof tag === 'function') {
+        mountComponent(vnode.tag(), rootEl)
+      }
+    }
+    render(vNodes, el)
+  </script>
+</html>

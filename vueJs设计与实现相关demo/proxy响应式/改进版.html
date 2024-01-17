@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body></body>
+  <script>
+    let obj = {
+      ok: true,
+      text: 'hello'
+    }
+    // 用一个全局变量存储当前被注册的副作用函数-实际情况下，一个副作用函数可能会多次被注册-比如一个渲染函数中多次读取同一个属性；也可能存在多个需要注册的函数，如果不采用全局变量存储当前注册的函数的话，在track中收集依赖时，deps.add(副作用函数)写起来就很麻烦-比如副作用函数为a时，就添加a，为b时又写添加b
+    let activeEffect
+    // effect 函数用于注册副作用函数--没有这一步，后面读取属性时不会执行收集依赖
+    function effect(fn) {
+      // 当调用 effect 注册副作用函数时，将副作用函数 fn 赋值给activeEffect
+      activeEffect = fn
+      // 执行副作用函数
+      fn()
+    }
+
+    /*
+     * 依赖收集
+     * weakMap的key为原始对象如obj，value为
+     * new Map中：key为原始对象的属性们(如text)，value为 new Set，new Set是每个原始对象key所对应的依赖集合
+     * */
+    const bucket = new Map()
+    const track = (target, key) => {
+      // 没有 activeEffect，直接 return-----即属性值没有依赖项的情况，没有副作用函数
+      if (!activeEffect) return target[key]
+      // 根据 target 从“桶”中取得 depsMap，它也是一个 Map 类型：key -->efects
+
+      let depsMap = bucket.get(target)
+      // 如果不存在 depsMap，那么新建一个 Map 并与 target 关联
+      if (!depsMap) {
+        bucket.set(target, (depsMap = new Map()))
+      }
+      // 再根据 key 从 depsMap 中取得 deps，它是一个 Set 类型，
+      // 里面存储着所有与当前 key 相关联的副作用函数：effects
+      let deps = depsMap.get(key)
+      // 如果 deps 不存在，同样新建一个 Set 并与 key 关联
+      if (!deps) {
+        depsMap.set(key, (deps = new Set()))
+      }
+      // 最后将当前激活的副作用函数添加到“桶”里
+      deps.add(activeEffect)
+    }
+    const trigger = (target, key) => {
+      // 根据 target 从桶中取得 depsMap，它是 key --> effects
+      const depsMap = bucket.get(target)
+      if (!depsMap) return
+      // 根据 key 取得所有副作用函数 effects
+      const effects = depsMap.get(key)
+      // 执行副作用函数
+      effects && effects.forEach(fn => fn())
+    }
+
+    /* proxy代理obj，创建响应式对象 */
+    const proxyObj = new Proxy(obj, {
+      // 拦截读取操作
+      get(target, key) {
+        // 完成依赖的收集，在bucket中形成 WeakMap=>Map=>Set的树形结构
+        track(target, key)
+        // 返回属性值
+        return target[key]
+      },
+      // 拦截设置操作
+      set(target, key, newVal) {
+        // 设置属性值
+        target[key] = newVal
+        trigger(target, key)
+      }
+    })
+    effect(() => {
+      console.log('effect')
+      //不完善的地方：当ok为false时，页面一直为not,但此时修改text，尽管页面不变化还是会触发effect依赖，因为text也收集了effect为依赖
+      document.body.innerText = proxyObj.ok ? proxyObj.text : 'not'
+    })
+
+    // 1 秒后修改响应式数据-自动触发effect，实现页面更新
+    setTimeout(() => {
+      proxyObj.ok = false
+      proxyObj.text = 'hello vue3'
+    }, 1000)
+    setTimeout(() => {
+      proxyObj.text = 'hello vue3111'
+    }, 3000)
+    console.log(bucket)
+  </script>
+</html>
