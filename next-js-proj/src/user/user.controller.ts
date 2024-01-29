@@ -10,24 +10,20 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { VipService } from '../vip/vip.service';
+import { ValidatePipe } from 'src/validate/validate.pipe';
 
 @Controller('user')
 export class UserController {
-  constructor(
-    private readonly userService: UserService,
-    private readonly vipService: VipService,
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
+  create(@Body(new ValidatePipe()) createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
 
   @Get()
   findAll() {
-    return this.vipService.findAll();
-    // return this.userService.findAll();
+    return this.userService.findAll();
   }
 
   @Get(':id')

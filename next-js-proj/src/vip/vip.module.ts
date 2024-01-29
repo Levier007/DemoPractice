@@ -5,5 +5,6 @@ import { VipController } from './vip.controller';
 @Module({
   controllers: [VipController],
   providers: [VipService],
+  exports: [VipService],
 })
 export class VipModule {}
