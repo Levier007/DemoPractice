@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/qs@6.10.2/dist/qs.js"></script>
+  </head>
+  <body>
+    <h2>Hello World</h2>
+    <button onclick="sendUrlParams(123)">请求(url params)</button>
+    <button onclick="sendQuery({name:'lwt',age:18})">请求(query)</button>
+    <button onclick="sendFormUrl()">请求(form urlencoded)</button>
+    <button onclick="sendJSON()">请求(Json)</button>
+    <div style="margin-top: 20px">
+      <span>文件上传</span>
+      <input id="fileInput" type="file" multiple onchange="uploadFile()" />
+    </div>
+    <div style="margin-top: 20px">
+      <button onclick="downloadFile()">下载</button>
+    </div>
+  </body>
+  <script>
+    function sendUrlParams(params) {
+      fetch(`/api/test/${params}`, {
+        method: 'get',
+      })
+        .then((res) => {
+          console.log(res);
+          return res.text();
+        })
+        .then((data) => {
+          console.log(data);
+        });
+    }
+    function sendQuery(data) {
+      let { name, age } = data;
+      fetch(`/api/test/findPerson?name=${name}&age=${age}`, {
+        method: 'get',
+      })
+        .then((res) => {
+          console.log(res);
+          return res.text();
+        })
+        .then((data) => {
+          console.log(data);
+        });
+    }
+    async function sendFormUrl() {
+      const res = await axios.post(
+        '/api/test/formUrl',
+        Qs.stringify({
+          name: '李文涛',
+          age: 20,
+        }),
+        {
+          headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        },
+      );
+      console.log(res);
+    }
+    async function sendJSON() {
+      const res = await axios.post('/api/test/formUrl', {
+        name: '李文涛',
+        age: 22,
+      });
+      console.log(res);
+    }
+    const fileInput = document.querySelector('#fileInput');
+    async function uploadFile() {
+      const data = new FormData();
+      data.set('name', '光');
+      data.set('age', 20);
+      data.set('file1', fileInput.files[0]);
+      data.set('file2', fileInput.files[1]);
+
+      const res = await axios.post('/api/test/file', data, {
+        headers: { 'content-type': 'multipart/form-data' },
+      });
+      console.log(res);
+    }
+
+    async function downloadFile() {
+      const res = await axios.get('/api/test/download', {
+        responseType: 'blob', // 指定响应的数据类型为二进制数据
+      });
+      // 创建一个 Blob 对象，用于保存二进制数据
+      const blob = new Blob([res.data], { type: res.headers['content-type'] });
+      console.log(res);
+      // 创建一个下载链接并设置下载的文件名
+      const downloadLink = document.createElement('a');
+      downloadLink.href = window.URL.createObjectURL(blob);
+      downloadLink.download = 'your-file-name';
+
+      // 将下载链接添加到页面，并触发点击事件进行下载
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+
+      // 清理下载链接
+      document.body.removeChild(downloadLink);
+    }
+  </script>
+</html>

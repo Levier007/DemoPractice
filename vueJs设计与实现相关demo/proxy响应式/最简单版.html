@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body></body>
+  <script>
+    const obj = {
+      text: 'hello'
+    }
+    // 副作用函数----此处可理解为涉及到读取响应式数据的函数---该响应式数据的依赖
+    function effect() {
+      console.log('effect')
+      document.body.innerText = proxyObj.text
+    }
+    /* 收集响应式数据相关依赖 */
+    const bucket = new Set()
+
+    /* proxy代理obj，创建响应式对象 */
+    const proxyObj = new Proxy(obj, {
+      get(target, key) {
+        // 读取时收集相关依赖
+        bucket.add(effect)
+        return target[key]
+      },
+      set(target, key, value) {
+        target[key] = value
+        // 更新依赖
+        bucket.forEach(fn => fn())
+        return true
+      }
+    })
+    //  读取响应式数据
+    effect()
+    // 1 秒后修改响应式数据-自动触发effect，实现页面更新
+    setTimeout(() => {
+      proxyObj.text = 'hello vue3'
+      /*
+       *bug之一
+       *比如 proxyObj.text1 = 'hello vue3'，读取了不存在的属性，也会触发effect函数运行
+       * 没有在副作用函数与被操作的目标字段之间建立明确的联系，因为set的原  因，应该使用map数据结构手机依赖
+       **/
+    }, 1000)
+  </script>
+</html>

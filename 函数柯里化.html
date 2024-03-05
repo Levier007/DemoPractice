@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      /* 
+          柯里化思路 ：
+            1、在fn参数接受完毕之前，返回的都是函数(便于接受剩余的参数)，参数接收完毕后，执行fn，返回值
+            2、故返回的curry函数有两种情况，一种时接收全部参数后执行fn，返回值
+        */
+      const currying = function (fn) {
+        function curry(...args) {
+          if (args.length >= fn.length) {
+            return fn(...args)
+          } else {
+            return function newCurry(...newArgs) {
+              return curry(...[...args, ...newArgs])
+            }
+          }
+        }
+        return curry
+      }
+      function sum(a, b, c) {
+        return a + b + c
+      }
+      const sumCurry = currying(sum)
+      const sum100 = sumCurry(100)
+      let res = sum100(200)(300)
+      console.log(res)
+    </script>
+  </body>
+</html>
