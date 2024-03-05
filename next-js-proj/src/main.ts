@@ -5,6 +5,7 @@ import { AppModule } from './app.module';
 import { LoginGuard } from './login/login.guard';
 import { TestFilter } from './test.filter';
 import { TestException } from './testException';
+import * as session from 'express-session';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   // 全局中间件---路由中间件详见app.module文件
@@ -13,6 +14,13 @@ async function bootstrap() {
     next();
     console.log('after');
   });
+  app.use(
+    session({
+      secret: 'lee',
+      resave: false,
+      saveUninitialized: false,
+    }),
+  );
   // 添加全局守卫
   // app.useGlobalGuards(new LoginGuard());
   app.useGlobalFilters(new TestFilter());

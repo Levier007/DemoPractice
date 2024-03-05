@@ -8,10 +8,11 @@ import {
 @Injectable()
 export class ValidatePipe implements PipeTransform {
   transform(value: any, metadata: ArgumentMetadata) {
-    if (Number.isNaN(parseInt(value))) {
-      throw new BadRequestException(`参数${metadata.data}错误`);
-    }
+    console.log(value.age);
 
-    return typeof value === 'number' ? value * 10 : parseInt(value) * 10;
+    if (Number.isNaN(parseInt(value.age))) {
+      throw new BadRequestException(`age参数错误`);
+    }
+    return typeof value.age === 'number' ? value.age : +value.age;
   }
 }

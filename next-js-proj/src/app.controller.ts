@@ -7,6 +7,11 @@ import {
   UseFilters,
   ParseIntPipe,
   Next,
+  Inject,
+  Session,
+  Res,
+  Headers,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import { LoginGuard } from './login/login.guard';
@@ -17,19 +22,20 @@ import { TestException } from './testException';
 import { Roles } from './role.decorator';
 import { Role } from './role';
 import { MyDecorator } from './MyDecoretor';
+import { JwtService } from '@nestjs/jwt';
+import { Response } from 'express';
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly appService: AppService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   @Get()
-  getHello(@Next() next: any): string {
+  async getHello(@Next() next: any) {
     console.log('handler');
     next();
-    return this.appService.getHello();
-  }
-  @Get()
-  getHello1(): string {
-    return 'aaa';
+    return await this.appService.getHello();
   }
 
   @Get('test')
@@ -59,5 +65,50 @@ export class AppController {
   @Get('test5')
   getTest5(@MyDecorator('carNums', ParseIntPipe) carNums: number) {
     return carNums;
+  }
+
+  @Get('sss')
+  sss(@Session() session) {
+    console.log(session);
+    session.count = session.count ? session.count + 1 : 1;
+    return session.count;
+  }
+
+  @Get('jwt')
+  jwt(
+    @Headers('Authorization') authorization: string,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    if (authorization) {
+      try {
+        console.log(authorization);
+
+        const token = authorization.split(' ')[1];
+        const data = this.jwtService.verify(token);
+        console.log(data);
+
+        const newToken = this.jwtService.sign({
+          count: data.count + 1,
+        });
+        response.setHeader('token', newToken);
+        return data.count + 1;
+      } catch (e) {
+        console.log(e);
+        throw new UnauthorizedException();
+      }
+    } else {
+      const newToken = this.jwtService.sign({
+        count: 1,
+      });
+
+      response.setHeader('token', newToken);
+      return 1;
+    }
+  }
+
+  @Get('needLogin')
+  @UseGuards(LoginGuard)
+  needLogin() {
+    return 'needLogin';
   }
 }
