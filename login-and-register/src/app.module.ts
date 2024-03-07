@@ -7,29 +7,8 @@ import { User } from './modules/user/entities/user.entity';
 import { Permission } from './modules/user/entities/permission.entity';
 import { Role } from './modules/user/entities/role.entity';
 import { UserModule } from './modules/user/user.module';
+import { RedisModule } from './modules/redis/redis.module';
 
-const databaseList = [
-  { database: 'login_test', entities: [User] },
-  { database: 'acl_test', entities: [User, Permission] },
-];
-const typeOrmConfigList = databaseList.map((database) =>
-  TypeOrmModule.forRoot({
-    type: 'mysql',
-    host: 'localhost',
-    port: 3306,
-    username: 'root',
-    password: 'lee5672020',
-    database: database.database,
-    synchronize: true,
-    logging: true,
-    entities: database.entities,
-    poolSize: 10,
-    connectorPackage: 'mysql2',
-    extra: {
-      authPlugin: 'sha256_password',
-    },
-  }),
-);
 @Module({
   imports: [
     // ...typeOrmConfigList,
@@ -57,6 +36,7 @@ const typeOrmConfigList = databaseList.map((database) =>
       },
     }),
     UserModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService],

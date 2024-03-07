@@ -1,4 +1,5 @@
 import { UserService } from '../modules/user/user.service';
+import { RedisService } from '../modules/redis/redis.service';
 import { JwtService } from '@nestjs/jwt';
 import {
   CanActivate,
@@ -16,6 +17,9 @@ export class PermissionGuard implements CanActivate {
   @Inject(UserService)
   private userService: UserService;
 
+  @Inject(RedisService)
+  private redisService: RedisService;
+
   @Inject(JwtService)
   private jwtService: JwtService;
 
@@ -29,13 +33,41 @@ export class PermissionGuard implements CanActivate {
     const token = bearer[1].trim();
     const info = this.jwtService.verify(token);
 
-    const permissions = this.reflector.get('permissions', context.getHandler());
-    console.log(permissions);
-    console.log(info.user.roles);
-    const isOk = (permission) => {
-      return permission.some((item) => item.name === permissions);
-    };
-    if (info.user.roles.some((item) => isOk(item.permissions))) {
+    let permissions = await this.redisService.listGet(
+      `user_${info.user.username}_permissions`,
+    );
+
+    if (permissions.length === 0) {
+      const foundUserRoles = await this.userService.findByUsername(
+        info.user.username,
+      );
+      const foundRolesPermissions = await this.userService.findByRole(
+        foundUserRoles.roles.map((item) => item.id),
+      );
+
+      let permissionsArr = foundRolesPermissions.map(
+        (role) => role.permissions,
+      );
+      permissions = [
+        ...new Set(
+          [].concat(
+            ...permissionsArr.map((item) => {
+              let res = item.map((el) => el.name);
+              return res;
+            }),
+          ),
+        ),
+      ];
+
+      this.redisService.listSet(
+        `user_${info.user.username}_permissions`,
+        permissions,
+        60 * 30,
+      );
+    }
+
+    const permission = this.reflector.get('permissions', context.getHandler());
+    if (permissions.some((item) => item === permission)) {
       return true;
     } else {
       throw new UnauthorizedException('没有权限访问该接口');

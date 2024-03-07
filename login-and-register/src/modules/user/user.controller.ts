@@ -33,22 +33,12 @@ export class UserController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const foundUser = await this.userService.login(user);
-    // 保存用户权限至token
-    const foundUserRoles = await this.userService.findByUsername(
-      foundUser.username,
-    );
-    const foundRolesPermissions = await this.userService.findByRole(
-      foundUserRoles.roles.map((item) => item.id),
-    );
-    console.log(foundRolesPermissions, 111);
-    console.log(foundUserRoles.roles, 222);
 
     if (foundUser) {
       const token = await this.jwtService.signAsync({
         user: {
           id: foundUser.id,
           username: foundUser.username,
-          roles: foundRolesPermissions,
         },
       });
       res.setHeader('Authorization', 'Bearer ' + token);
