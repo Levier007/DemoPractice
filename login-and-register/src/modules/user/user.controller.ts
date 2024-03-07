@@ -34,15 +34,21 @@ export class UserController {
   ) {
     const foundUser = await this.userService.login(user);
     // 保存用户权限至token
-    const foundUserPermissions = await this.userService.findByUsername(
+    const foundUserRoles = await this.userService.findByUsername(
       foundUser.username,
     );
+    const foundRolesPermissions = await this.userService.findByRole(
+      foundUserRoles.roles.map((item) => item.id),
+    );
+    console.log(foundRolesPermissions, 111);
+    console.log(foundUserRoles.roles, 222);
+
     if (foundUser) {
       const token = await this.jwtService.signAsync({
         user: {
           id: foundUser.id,
           username: foundUser.username,
-          permissions: foundUserPermissions.permissions,
+          roles: foundRolesPermissions,
         },
       });
       res.setHeader('Authorization', 'Bearer ' + token);
@@ -59,7 +65,7 @@ export class UserController {
 
   @Get('test')
   @UseGuards(LoginGuard, PermissionGuard)
-  @SetMetadata('permission', 'create_aaa')
+  @SetMetadata('permissions', '查询 aaa')
   test() {
     return 'test';
   }

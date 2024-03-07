@@ -29,9 +29,13 @@ export class PermissionGuard implements CanActivate {
     const token = bearer[1].trim();
     const info = this.jwtService.verify(token);
 
-    const permission = this.reflector.get('permission', context.getHandler());
-
-    if (info.user.permissions.some((item) => item.name === permission)) {
+    const permissions = this.reflector.get('permissions', context.getHandler());
+    console.log(permissions);
+    console.log(info.user.roles);
+    const isOk = (permission) => {
+      return permission.some((item) => item.name === permissions);
+    };
+    if (info.user.roles.some((item) => isOk(item.permissions))) {
       return true;
     } else {
       throw new UnauthorizedException('没有权限访问该接口');

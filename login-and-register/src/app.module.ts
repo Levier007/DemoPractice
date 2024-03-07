@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { User } from './modules/user/entities/user.entity';
 import { Permission } from './modules/user/entities/permission.entity';
+import { Role } from './modules/user/entities/role.entity';
 import { UserModule } from './modules/user/user.module';
 
 const databaseList = [
@@ -38,10 +39,10 @@ const typeOrmConfigList = databaseList.map((database) =>
       port: 3306,
       username: 'root',
       password: 'lee5672020',
-      database: 'acl_test',
+      database: 'rbac_test',
       synchronize: true,
       logging: true,
-      entities: [User, Permission],
+      entities: [User, Role, Permission],
       poolSize: 10,
       connectorPackage: 'mysql2',
       extra: {

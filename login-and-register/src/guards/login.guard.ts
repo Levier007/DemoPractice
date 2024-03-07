@@ -29,7 +29,6 @@ export class LoginGuard implements CanActivate {
     }
     const authorization = request.header('Authorization') || '';
     const bearer = authorization.split(' ');
-    console.log(this.userService);
     if (!bearer || bearer.length < 2) {
       throw new UnauthorizedException('登录token错误');
     }
