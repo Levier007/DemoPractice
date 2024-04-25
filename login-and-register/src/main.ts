@@ -12,6 +12,7 @@ async function bootstrap() {
     saveUninitialized: false
   })); */
   // app.useGlobalGuards(new LoginGuard());
+  app.setGlobalPrefix('api');
   await app.listen(3000);
 }
 bootstrap();

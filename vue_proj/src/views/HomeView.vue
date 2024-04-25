@@ -1,15 +1,47 @@
 <script setup lang="ts">
-  import { ref } from 'vue'
+  import { ref, reactive } from 'vue'
   import Text from './test.vue'
-  import { getBlogDetail } from '@/api/test'
+  import { getBlogDetail, login, register } from '@/api/test'
+  const formData = reactive({
+    username: '',
+    password: ''
+  })
   const getBlogData = async () => {
     let data = await getBlogDetail({ id: 1 })
+  }
+  const handleRegister = async () => {
+    let data = await register(formData)
+  }
+  const handleLogin = async () => {
+    let data = await login(formData)
   }
 </script>
 
 <template>
-  <button @click="getBlogData">发送请求(docker)</button>
-  <Test></Test>
+  <el-form
+    :model="formData"
+    label-width="auto"
+    style="max-width: 300px">
+    <el-form-item label="用户名">
+      <el-input v-model="formData.username" />
+    </el-form-item>
+    <el-form-item label="密码">
+      <el-input v-model="formData.password" />
+    </el-form-item>
+    <el-form-item>
+      <el-button
+        type="primary"
+        @click="handleRegister"
+        >注册</el-button
+      >
+      <el-button
+        type="primary"
+        @click="handleLogin"
+        >登录</el-button
+      >
+    </el-form-item>
+  </el-form>
+  <!-- <Test></Test> -->
 </template>
 
 <style scoped></style>

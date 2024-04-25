@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -8,14 +9,14 @@ import { Permission } from './modules/user/entities/permission.entity';
 import { Role } from './modules/user/entities/role.entity';
 import { UserModule } from './modules/user/user.module';
 import { RedisModule } from './modules/redis/redis.module';
+import * as path from 'path';
 
 @Module({
   imports: [
-    // ...typeOrmConfigList,
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
-      port: 3306,
+      host: '10.100.24.5',
+      port: 3307,
       username: 'root',
       password: 'lee5672020',
       database: 'rbac_test',
@@ -34,6 +35,12 @@ import { RedisModule } from './modules/redis/redis.module';
       signOptions: {
         expiresIn: 3600,
       },
+    }),
+    ConfigModule.forRoot({
+      envFilePath: [
+        path.join(process.cwd(), '.env.dev'),
+        path.join(process.cwd(), '.env.prod'),
+      ],
     }),
     UserModule,
     RedisModule,

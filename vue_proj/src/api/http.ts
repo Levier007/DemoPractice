@@ -1,13 +1,14 @@
 import axios from 'axios'
 
 const service = axios.create({
-  baseURL: 'http://192.168.233.128:5000' + '/api',
+  baseURL: '/api',
   timeout: 30000
 })
 
 // http request 拦截器
 service.interceptors.request.use(
   config => {
+    console.log(config)
     return config
   },
   error => {
