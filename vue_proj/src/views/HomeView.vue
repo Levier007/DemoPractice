@@ -1,13 +1,13 @@
 <script setup lang="ts">
-  import { ref, reactive } from 'vue'
+  import { ref, reactive, onMounted } from 'vue'
   import Text from './test.vue'
-  import { getBlogDetail, login, register } from '@/api/test'
+  import { getAll, login, register } from '@/api/test'
   const formData = reactive({
     username: '',
     password: ''
   })
-  const getBlogData = async () => {
-    let data = await getBlogDetail({ id: 1 })
+  const getAllData = async () => {
+    let data = await getAll()
   }
   const handleRegister = async () => {
     let data = await register(formData)
@@ -15,6 +15,9 @@
   const handleLogin = async () => {
     let data = await login(formData)
   }
+  onMounted(() => {
+    getAllData()
+  })
 </script>
 
 <template>

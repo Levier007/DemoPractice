@@ -8,11 +8,9 @@ interface UserInfo {
   username: String
   password: String
 }
-export const getBlogDetail = (id: MyId) => {
+export const getAll = () => {
   return service({
-    url: '/blog/detail',
-    method: 'get',
-    params: id
+    method: 'get'
   })
 }
 

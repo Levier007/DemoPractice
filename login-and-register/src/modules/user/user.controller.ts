@@ -11,6 +11,7 @@ import {
   UseGuards,
   ValidationPipe,
   SetMetadata,
+  Headers,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { LoginDto } from './dto/login.dto';
@@ -29,9 +30,12 @@ export class UserController {
 
   @Post('login')
   async login(
+    @Headers() headers: string,
     @Body(ValidationPipe) user: LoginDto,
     @Res({ passthrough: true }) res: Response,
   ) {
+    console.log('headers', headers);
+
     const foundUser = await this.userService.login(user);
 
     if (foundUser) {
