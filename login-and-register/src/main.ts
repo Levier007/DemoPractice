@@ -13,6 +13,7 @@ async function bootstrap() {
   })); */
   // app.useGlobalGuards(new LoginGuard());
   app.setGlobalPrefix('api');
+  // app.enableCors();
   await app.listen(3000);
 }
 bootstrap();

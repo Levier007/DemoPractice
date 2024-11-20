@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0" />
+    <title>Shadow DOM Example</title>
+  </head>
+  <body>
+    <script
+      src="./goodsCard.js"
+      defer></script>
+    <goods-card
+      img="http://zs-oa.oss-cn-shenzhen.aliyuncs.com/zsoa/goods/v1v2/1021161140018/spu1/349334579590860800.jpg"
+      name="跑鞋"></goods-card>
+  </body>
+  <script>
+    document.querySelector('goods-card').addEventListener('click', e => {
+      console.log('按钮事件', e.detail)
+    })
+    setTimeout(() => {
+      document.querySelector('goods-card').setAttribute('name', '篮球鞋')
+    }, 2000)
+  </script>
+</html>
